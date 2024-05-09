@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AB Electronics IO Boards - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>AB Electronics IO Boards</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/ab-electronics-io-boards&amp;t=AB%20Electronics%20IO%20Boards%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=AB%20Electronics%20IO%20Boards%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/ab-electronics-io-boards&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/ab-electronics-io-boards" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>There are no shortage of Raspberry Pi IO board manufacturers out there. An entire cottage industry has sprung up around the low cost device to cater for any interface demands the tinkerer or professional might ever have.</p>
+<p><a href="https://www.abelectronics.co.uk/">AB electronics</a> are one of the more interesting such companies. They manufacturer their own boards in the UK using equipment they built themselves. This is heartening, as Britain's once great manufacturing reputation is a shadow of its former self.</p>
+<p>I'm currently playing with a variety of Raspberry Pi boards from AB electronics, <a href="https://www.abelectronics.co.uk/products/3/raspberry-pi/">which you can find here</a>.</p>
+<p>Specifically I have the i-Wire Pi board with a temperature sensor ( it's very easy to use after you install the 1-Wire filesystem driver, you just cat a file! ), the Delta-Sigma Pi ADC, the RTC Pi Real-time Clock Module and the IO Pi 32 Channel Port expander which uses a pair of MCP23017 chips that are directly supported in WiringPi2. As far as digital IO goes, the dual MCP23017 <a href="https://www.abelectronics.co.uk/products/3/Raspberry-Pi/18/IO-Pi-32-Channel-Port-Expander-for-the-Raspberry-Pi-computer-boards">IO Pi 32</a> should set you up pretty well; if you need more than 32 inputs/outputs then I'd love to know what project you're working on.</p>
+<p>On the face of it, AB Electronics boards look pretty much the same as any other IO board, but they have a trick up their sleeve; they stack. Most of the boards use I2C, which is daisy-chainable, and these boards include three jumpers for setting a distinct I2C address for each IC. Simply stack them on top of each other and you'll have what I lovingly dub a "Leaning Tower Of Pi".</p>
+<p>
+<img src="/images/leaning-tower-of-pi-2.jpg">
+</p>
+<p>The leaning wont be around for long, however, as AB Electronics are in the process of revising their board design to use the mounting hole, and standoffs, to secure a stack of IO boards to the Pi. When compared to solutions like Quick2Wire, or anything else using rinnob cables the AB Electronics boards are extremely neat and tidy and produce a very small footprint. You'll struggle to find a case that fits around the Pi and a selection of IO boards, though!</p>
+<p>Another great thing about the stackable system is that you can plug a ribbon cable into the top ( or, in my case, a PiBorg LEDBorg ) and put whatever pins the IO boards don't use to other uses.</P>
+<p>
+<img src="/images/ledborg-ab-pi-io.jpg">
+</p>
+<p>The <a href="https://www.piborg.com/ledborg">LEDBorg</a> proved an excellent device to top off the AB electronics IO boards. I was able to script up the output of the temperature sensor to produce a variable colour LED readout. This is a pretty simple setup, but at least it demonstrates that the sensor works as intended.</p>
+<p>I could also use the output from 3 analogue sensors, adjusted accordingly, to control the brightness of the 3 LEDs within the LEDBorg RGB LED. I spent a long time trying to write a C module for WiringPi to support the MCP3424 ICs on the Delta Sigma Pi board, but thus far I haven't had much luck reading back the multi-byte voltage value.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2013-04-19 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = undefined;
+            var disqus_url = 'https://pi.gadgetoid.com/post/045-ab-electronics-io-boards';
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li>
+<a href="https://github.com/gadgetoid">
+<i class="fab fa-github-alt"></i>
+GitHub
+</a>
+</li>
+<li>
+<a href="https://fosstodon.org/@gadgetoid">
+<i class="fab fa-twitter"></i>
+Mastodon
+</a>
+</li>
+</li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li class="active"><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

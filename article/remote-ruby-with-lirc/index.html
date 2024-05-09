@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Remote Ruby with LIRC - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Remote Ruby with LIRC</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/remote-ruby-with-lirc&amp;t=Remote%20Ruby%20with%20LIRC%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Remote%20Ruby%20with%20LIRC%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/remote-ruby-with-lirc&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/remote-ruby-with-lirc" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>Not to be confused with "IRC", LIRC stands for Linux Infrared Remote Control. It is, as you might have guessed from the name, a suite of tools and drivers geared at getting your infrared remote gear to work with Linux.</p>
+<p>Now, alas, I can not regale you with tales of custom-built IR recievers because I happened to have a Philips eHome Infrared Reciever knocking about from an old media-center PC. Getting it to work with Debian on the Pi was a little tricky, however, and this is an exercise I will leave to you. I'd rather talk about getting the working remote doing fancy things in Ruby. Ultimately, though, I didn't really get it working myself; bootc came to my rescue with his cutting-edge kernel for the Pi, which supported my reciever out of the box.</p>
+<p>You also need to set up your remote, and for that you can either delve into the <a href="https://lirc.sourceforge.net/remotes/">pre-configured remotes</a> and hope yours is there, or fire up <a href="https://www.lirc.org/html/irrecord.html">irrecord</a> and record and name each button.</p>
+<p>Once working, the fun begins. LIRC comes with some handy tools which do a number of nifty things in response to remote control button presses. irpty emulates a terminal and forwards remote commands to whatever application you choose to run inside it, irexec can execute commands in response to button presses, and most useful of all for Ruby is ircat which outputs commands to STDOUT.</p>
+<p>All of these utilities require a config file which stipulates which command is executed in response to which button. This is usually at ~/.lircrc and has a simple syntax <a href="https://www.lirc.org/html/configure.html">which is well documented at lirc.org</a>. Here's a snippet from mine, specifically for ircat:</p>
+<code>begin&#x000A;	button	= ok&#x000A;	prog	= clock&#x000A;	config	= blink&#x000A;end&#x000A;begin&#x000A;	button	= stop&#x000A;	prog	= clock&#x000A;	config	= exit&#x000A;end</code>
+<p>I've kept it simple, touching only 3 of the available options. The only mystifying option, "prog", is the program name which I pass into ircat, and effectively creates a group of commands for that particular application. "button" is the name of the remote button, and "config" is the string that ircat will print to its STDOUT in response to that button. Easy!</p>
+<p>Now, I mentioned passing a program name to ircat, this should match the program name that you've used in your settings. Ultimately you will be doing something like this from Ruby: "ircat clock --config=/home/pi/.lircrc"</p>
+<p>The config file is referenced explicitly because I run clock.rb as root so it can access the GPIO.</p>
+<p>I suspect you're eager to see how this works in Ruby, so here we go ( excuse my gratuitous overuse of @@ class variables ):</p>
+<pre class="prettyprint lang-ruby linenums">require 'pty'&#x000A;&#x000A;@@commands = Array.new&#x000A;&#x000A;# Spawn an ircat thread for sexy remote commands&#x000A;if @@ircat.nil?&#x000A;  @@ircat = Thread.start do&#x000A;    PTY.spawn("ircat clock --config=/home/pi/.lircrc") do |r,w,pid|&#x000A;      @@pid = pid&#x000A;        r.each { |line| @@commands.push line.chomp! }&#x000A;      end&#x000A;  end&#x000A;end</pre>
+<p>The code really is as simple as it looks. Start a new thread and use PTY to run the ircat "prog". Every time ircat outputs a command to its STDOUT, PTY will slurp it up and append it to the end of the @@commands queue using Array.push. The .chomp! removes any nasty trailing spaces and makes checking the commands simpler.</p>
+<p>To process the commands simply .shift ( grab the first item of ) the array, and run it through a case statement or run it through a command processor. Once you've got the command, acting on it is the easy bit. As an example, I used commands to enable my remote to play/pause the clock, and turn on/off individual LEDs ( with the number keys ). The possibilities are endless once you've hooked your script up to an IR remote.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2012-06-20 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = undefined;
+            var disqus_url = 'https://pi.gadgetoid.com/post/007-remote-ruby-with-lirc';
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li class="active"><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

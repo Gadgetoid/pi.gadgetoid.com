@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+<meta charset="UTF-8">
+		<title>Dots | Pi @ Gadgetoid.com</title>
+		<meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<script src="https://cdn.jsdelivr.net/jquery/2.0.0/jquery-2.0.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/raphael/2.1.0/raphael-min.js"></script>
+        <script src="dots.gadgetoid.min.js"></script>
+        <style type="text/css">
+        	#debug {
+
+        		position:absolute;
+        		right:0px;
+        		top:10px;
+        		display:none;
+
+        	}
+        	#score {
+        		position:absolute;
+        		top:782px;
+        		width:600px;
+        		display:none;
+        	}
+        </style>
+	</head>
+	<body>
+		<div id="game"></div>
+		<p>Click and drag to join dots of the same colour.<br />
+			Written in RaphaelJS by <a href="https://pi.gadgetoid.com">Philip Howard</a></p>
+			<p>
+				<strong>Scoring:</strong><br />
+				2 = 8 points<br />
+				3 = 27 points<br />
+				4 = 64 points<br />
+				5 = 125 points<br />
+				6 = 216 points<br />
+				7 = 343 points<br />
+				8 = 512 points
+			</p>
+		<textarea id="debug" rows="30" cols="90"></textarea>
+		<textarea id="score" rows="10" cols="90"></textarea>
+
+		<script type="text/javascript">
+	
+			var isiPad = navigator.userAgent.match(/iPad/i) != null;
+
+			game.settings.dots.x = 7;
+			game.settings.dots.y = 7;
+			game.settings.time = 60;
+			game.settings.dot_radius = 8;
+			game.settings.dot_spacing = 22;
+
+			// Allow moves
+			game.settings.horizontal = true;
+			game.settings.vertical = true;
+			game.settings.diagonal = false;
+
+			game.settings.use_levels = true;
+			game.settings.respawn = false;
+
+			// Remove elminated colours from the board
+			game.settings.eliminate = true;
+
+			if( isiPad )
+			{
+				game.settings.dot_radius = 42;
+				game.settings.dot_spacing = 8;
+			}
+
+			game.start();
+
+
+			jQuery(document).bind('touchmove', false);
+			jQuery(document).bind("contextmenu",function(e){e.preventDefault();});
+
+		</script>
+	</body>
+</html>

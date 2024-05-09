@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Programming Your Pico PiDuino - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="Programming your barebones Raspbery Pi Arduino-compatible with AVRdude" name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Programming Your Pico PiDuino</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/programming-your-pico-piduino&amp;t=Programming%20Your%20Pico%20PiDuino%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Programming%20Your%20Pico%20PiDuino%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/programming-your-pico-piduino&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/programming-your-pico-piduino" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>If you haven't read <a href="https://pi.gadgetoid.com/article/building-the-pico-piduino">my guide to assembling your very own ultra-minimalist Breadboard Arduino specifically for your Raspberry Pi</a>, or created your own variant, then you should give it a whirl. The Pico PiDuino is the cheapest way to dip your toes into Arduino-compatible tinkering on your Pi, and needs nothing more than your Pi and a few jump leads to program and talk to it.</p>
+<p><a href="https://www.flickr.com/photos/65419961@N06/9765459211/" title="Pico PiDuino by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3709/9765459211_42741ecbb4_c.jpg" alt="Pico PiDuino"></a></p>
+<p>Once again, <a href="https://www.phenoptix.com/products/bare-bones-breadboard-arduino-compatible-kit-shrinkify-your-projects">I recommend this kit from Phenoptix</a> which, if you're in the UK, will cost you £5 and not a penny more. It's what I built my Pico PiDuino with, and it's what inspired this series of tutorials in the first place!</p>
+<h2>What's covered in this article</h2>
+<p>This article will cover installing Gordon Henderson's modified AVRdude, which you'll need to flash compiled programs to your Pico PiDuino. If you're feeling brave or using a Beaglebone Black then you can also compile a modified AVRdude from source which includes a Linux SPI programming mode, and a customisable reset pin ( <a href="https://github.com/kcuzner/avrdude">https://github.com/kcuzner/avrdude</a> ).</p>
+<p>I will also cover talking to your Pi over Serial, using jump-leads to the Pi's TX/RX. Gordon has a great little setup script to get Serial up and running, and a config file for Minicom, too. I'll also tell you how to set up your /dev/ttyAMA0 to accept echoed strings and transmit them to your PiDuino- this is easy to use in many situations, and means you don't need to worry about a Python or Ruby library just yet (I'll cover using those in a future article).</p>
+<p>Once communication is set up, we'll look at using Arduino-mk and the Arduino IDE. I'll be focussing on writing, flashing and compiling code from the command-line using makefiles because the Arduino IDE can be a little sluggish on the Pi, and even more so if you're running headless and trying to use X forwarding. Don't worry, it's easier than it sounds.</p>
+<h2>A word on vi/vim, the text editor</h2>
+<p>I tend to use vim to edit files. Most other guides refer you to nano, but I don't use it. To install vim ( VI iMproved ) use: sudo apt-get install vim</p>
+<p>Once installed, you can use vim to edit text files, but you'll have to get your head around the Arcane commands used in the editor first.</p>
+<p>To go into insert mode, press <strong>"i"</strong> - you can now type content into your file. There are other ways to go into insert mode, with varying effects, for example <strong>"o"</strong> will insert a new line.</p>
+<p>Also useful to know is that hitting <strong>"u"</strong> will undo.</p>
+<p>If any of these commands result in text appearing in your file, you need to exit edit mode and try again.</p>
+<p>To exit insert mode, press <strong>"esc"</strong></p>
+<p>To save and quit, type <strong>":wq"</strong> ( write and quit ) when you're not in edit mode</p>
+<p>To quit without saving, type ":q"</p>
+<h2>Installing AVRdude</h2>
+<p>The first step is to install AVRdude. AVRdude is the application which will talk to your ATmega and flash your compiled programs to it. I touched upon this in my previous article, so skip ahead if you need to.</p>
+<p>Before starting, make sure your Pico PiDuino is connected properly, you'll need male-to-female jump wires for Reset, MOSI, MISO and CLK. Make sure your power is connected too! For help, check out the <a href="https://pi.gadgetoid.com/piduino/pico-piduino">Connection Overlay on my assembly microsite</a> and the <a href="https://pi.gadgetoid.com/pinout/atmega328-arduino">relevant pins on my Pinout Microsite</a>.</p>
+<p><img src="/piduino/pico-piduino-pinout.jpg" /></p>
+<p>On Raspbian you can install Gordon's AVRdude using the following commands:</p>
+<code>cd /tmp<br/>wget https://project-downloads.drogon.net/gertboard/avrdude_5.10-4_armhf.deb<br/>sudo dpkg -i avrdude_5.10-4_armhf.deb<br/>sudo chmod 4755 /usr/bin/avrdude</code>
+<p>Once done, cross your fingers and verify connectivity with:</p>
+<code>avrdude -p m328p -c gpio</code>
+<p>Assuming everything is good, and you get a positive response from avrdude which should look something like the below, we can move on to programming.</p>
+<p><img src="/piduino/avrdude-output-pi.png" /></p>
+<h2>Programming your Pico PiDuino</h2>
+<p>Now we're getting to the fun part; making your Pico PiDuino do something meaningful. If you've got 4 LEDs connected as described in my first article this means putting together a simple program to turn them on and off via Serial using the QWER and ASDF keys on your keyboard. It sounds dull, and in the grand scheme of things it is quite dull, but the basics of toggling outputs on your Microcontroller, and responding to Serial commands will help you build more interesting Pico PiDuino projects and work with more exciting hardware.</p>
+<p>First thing's first, you need the Arduino IDE and the command-line Arduino Makefile helper installed on your Pi:</p>
+<code>sudo apt-get install arduino arduino-mk</code>
+<p>Next, make yourself a directory to work in:</p>
+<code>mkdir ~/piduino<br/>cd ~/piduino</code>
+<p>And create a makefile by saving the following into file entitled "Makefile"</p>
+<code>ARDUINO_DIR = /usr/share/arduino<br/>BOARD_TAG = uno<br/>ARDUINO_PORT = /dev/ttyAMA0<br/>ARDUINO_LIBS = <br/>include /usr/share/arduino/Arduino.mk</code>
+<p>Now you're going to need something to compile. Although we're working from the command-line, we're still working with the same language you would use in the Arduino IDE; so all the tutorials are applicable. Remember, however, that we don't have an LED connected to Pin 13, but 7, 8, 9 and 10, so adjust any examples you use accordingly.</p>
+<p><a href="https://www.flickr.com/photos/65419961@N06/9765687604/" title="Pico PiDuino Programming by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3673/9765687604_254ede6211_c.jpg" alt="Pico PiDuino Programming"></a></p>
+<p>I've put together this simple variation on Blink which turns on each LED in sequence, and then turns them all off at once. If you're new to Arduino, the below code will introduce you to a few basic concepts. If you're not, just skip to the code!</p>
+<h2>Arduino basics</h2>
+<p>The "#define LED_RED 7" allows you to define an unchanging value, which you can reference later. This is useful for assigning friendly names to obscure things like Pin assignments. So we create one constant for each pin.</p>
+<p>The "void setup()" function is run when the ATmega first starts up, and is used for setup. "void loop()" is run as fast as the ATmega can run it, and it's where we put things that need to happen repeatedly.</p>
+<p>pinMode sets the mode of a pin, pins can be either outputs or inputs- we want OUTPUTs to drive the LEDs and so they're all set as such.</p>
+<p>digitalWrite writes a digital value ( either 1, or 0 a.k.a. HIGH or LOW ) to a pin. 1/HIGH means an LED will turn on, and 0/LOW means it will turn off.</p>
+<p>delay does just that, delaying the ATmega for a given number of milliseconds.</p>
+<h2>The code</h2>
+Save this as “blink.ino” ( or wget <a href="/piduino/blink.ino">https://pi.gadgetoid.com/piduino/blink.ino</a> ) in your piduino folder alongside the Makefile. To compile it, you simply type “make” and wait… and wait. Compiling on the Pi takes a while, even for the simplest of Sketches; I'll have to look into omitting some of the unnecessary libraries.
+<code>#define LED_RED 7&#x000A;#define LED_ORANGE 8&#x000A;#define LED_YELLOW 9&#x000A;#define LED_GREEN 10&#x000A;&#x000A;void setup(){&#x000A;	Serial.begin(9600);&#x000A;&#x000A;	//Set all the pins we need to output pins&#x000A;	pinMode(LED_RED,    OUTPUT);&#x000A;	pinMode(LED_ORANGE, OUTPUT);&#x000A;	pinMode(LED_YELLOW, OUTPUT);&#x000A;	pinMode(LED_GREEN,  OUTPUT);&#x000A;}&#x000A;&#x000A;void loop (){&#x000A;	digitalWrite(LED_RED,    HIGH);&#x000A;	delay(100);&#x000A;	digitalWrite(LED_ORANGE, HIGH);&#x000A;	delay(100);&#x000A;	digitalWrite(LED_YELLOW, HIGH);&#x000A;	delay(100);&#x000A;	digitalWrite(LED_GREEN,  HIGH);&#x000A;	delay(100);&#x000A;&#x000A;	digitalWrite(LED_RED,    LOW);&#x000A;	digitalWrite(LED_ORANGE, LOW);&#x000A;	digitalWrite(LED_YELLOW, LOW);&#x000A;	digitalWrite(LED_GREEN,  LOW);&#x000A;&#x000A;	delay(100);&#x000A;}</code>
+<p>Once compiled, flash with:</p>
+<code>avrdude -p m328p -c gpio -e -U flash:w:build-cli/Arduino.hex</code>
+<p>I like to put this into a flash.sh file, so flashing is as simple as “./flash.sh”</p>
+<p>Note: I've discovered that the .hex file wont always be named "Arduino/hex", use the code below to create your flash.sh to make it easy/generic:</p>
+<code>#!/bin/sh&#x000A;cat build-cli/*.hex > flashme.hex&#x000A;avrdude -p m328p -c gpio -e -U flash:w:flashme.hex</code>
+<p>The result of your flash should look something like this:</p>
+<p><img src="/piduino/avrdude-output-flash.png" /></p>
+<p>Making the ATmega blink a few LEDs is a good learning example, but it's not really useful and doesn't exploit the fact that a 3.3v powered PiDuino can talk directly to your Raspberry Pi over serial. Let's whip up a more complicated example that accepts single-character commands over serial and acts upon them. I'll do the first command - on with q and off with a - and you can try and finish off the code with the rest. Amend your blink.ino file to:</p>
+<code>#define LED_RED 7&#x000A;#define LED_ORANGE 8&#x000A;#define LED_YELLOW 9&#x000A;#define LED_GREEN 10&#x000A;&#x000A;boolean heartbeat = true;&#x000A;&#x000A;void setup(){&#x000A;	Serial.begin(9600);&#x000A;&#x000A;	pinMode(LED_RED,    OUTPUT);&#x000A;	pinMode(LED_ORANGE, OUTPUT);&#x000A;	pinMode(LED_YELLOW, OUTPUT);&#x000A;	pinMode(LED_GREEN,  OUTPUT);&#x000A;}&#x000A;&#x000A;void loop (){&#x000A;	if( heartbeat ){&#x000A;		digitalWrite(7,HIGH);&#x000A;		delay(250);&#x000A;		digitalWrite(7,LOW);&#x000A;		delay(250);&#x000A;	}&#x000A;&#x000A;	if (Serial.available()) {&#x000A;		heartbeat = false;&#x000A;		char ser = Serial.read();&#x000A;		switch (ser) {&#x000A;			case 'q':&#x000A;				digitalWrite(LED_Q, HIGH);&#x000A;				Serial.println("LED 3 ON");&#x000A;				break;&#x000A;			case 'a':&#x000A;				digitalWrite(LED_Q, LOW);&#x000A;				Serial.println("LED 3 OFF");&#x000A;				break;&#x000A;		} &#x000A;		delay(250);&#x000A;	}&#x000A;}</code>
+<p>And then “make clean && make” to recompile your sketch before using your flash.sh to flash, or running “avrdude -p m328p -c gpio -e -U flash:w:build-cli/Arduino.hex”</p>
+<h2>Talking to your Pico PiDuino over serial</h2>
+<p>Once you’ve got this sketch uploaded, you should notice the Red LED blinking rapidly. I put this “Heartbeat” into the code so you could tell it had flashed successfully. Once the ATmega recieves a command the Heartbeat will stop and you should be able to toggle the LED manually with “q” for on and “a” for off.</p>
+<p>You can do this either with Minicom or by echoing these letters to /dev/ttyAMA0 after some setup.</p>
+<h2>Setting up Minicom</h2>
+<p>Once again we refer to the almighty Gordon for <a href="https://projects.drogon.net/raspberry-pi/gertboard/using-the-arduino-ide/">Minicom setup</a>.</p>
+<p>As per his instructions, first you should install Minicom</p>
+<code>sudo apt-get install minicom</code>
+<p>Then go into the minicom config dir:</p>
+<code>cd /etc/minicom</code>
+<p>And create a new config file:</p>
+<code>sudo vi minirc.ama0</code>
+<p>And paste in the settings ( don't forget to press "i" first if you're using vi/vim ):</p>
+<code>pu port             /dev/ttyAMA0<br/>pu baudrate         9600<br/>pu bits             8<br/>pu parity           N<br/>pu stopbits         1<br/>pu minit            <br/>pu mreset           <br/>pu rtscts           No</code>
+<p>Once set up, simply type:</p>
+<code>minicom ama0</code>
+<p>And you'll be greeted with a terminal. Now you should be able to press "q" to turn the Red LED on, and "a" to turn it off again.</p>
+<h2>Using /dev/ttyAMA0</h2>
+<p>Minicom does the trick, but what if you want to send a string of commands and have your Piduino intepret them one at a time?</p>
+<p>You can do this with a simple one-liner:</p>
+<code>stty -F /dev/ttyAMA0 speed 9600 cs8 -cstopb -parenb</code>
+<p>Then you can just:</p>
+<code>echo "qaqaqaqa" > /dev/ttyAMA0</code>
+<p>Which should turn the Red LED on and then off again 4 times.</p>
+<h2>Stay Tuned!</h2>
+<p>I've had success programming a Pico PiDuino with the BeagleBone Black, although the setup is a little trickier, it requires Ubuntu for starters, and the pinout is a little confusing due to the Bone's many, many GPIO pins. Still, I have a guide in the works for Beaglebone Black users, so stay tuned!</p>
+<p>I have a couple of ideas in mind for the next article in the series. Let me know via Twitter @gadgetoid which you prefer. Either committing the Pico PiDuino to perfboard, or getting some more exciting components connected.</p>
+<h2>Useful Links</h2>
+<ul>
+<li><a href="https://pi.gadgetoid.com/pinout/atmega328-arduino">https://pi.gadgetoid.com/pinout/atmega328-arduino</a> Raspberry Pi to ATmega 328 programming pinout</li>
+<li><a href="https://pi.gadgetoid.com/piduino/pico-piduino">https://pi.gadgetoid.com/piduino/pico-piduino</a> - Pico PiDuino Assembly Guide</li>
+<li><a href="https://projects.drogon.net/raspberry-pi/gertboard/arduino-ide-installation-isp/">https://projects.drogon.net/raspberry-pi/gertboard/arduino-ide-installation-isp/</a> - Arduino IDE/modified AVRdude installation</li></li>
+<li><a href="https://www.phenoptix.com/products/bare-bones-breadboard-arduino-compatible-kit-shrinkify-your-projects">https://www.phenoptix.com/products/bare-bones-breadboard-arduino&hellip;</a> - Barebones Arduino-compatible kit from Phenoptix</li>
+</ul>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2013-09-15 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = 'post-59';
+            var disqus_url = undefined;
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li class="active"><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

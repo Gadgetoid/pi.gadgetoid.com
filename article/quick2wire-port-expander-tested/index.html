@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick2Wire Port Expander Tested - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Quick2Wire Port Expander Tested</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/quick2wire-port-expander-tested&amp;t=Quick2Wire%20Port%20Expander%20Tested%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Quick2Wire%20Port%20Expander%20Tested%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/quick2wire-port-expander-tested&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/quick2wire-port-expander-tested" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>With the Quick2Wire board and port expander both assembled and <a href="https://www.flickr.com/photos/65419961@N06/sets/72157632939458322/">liberally photographed</a> I decided to set about testing, specifically, the Port Expander board. It interests me more than the vanailla Quick2Wire board, which is basicaly not much more than a method of protecting the Raspberry Pi's GPIO and providing a platform to hook up all the useful stuff.</p>
+<p>The Port Expander offers 16 additional inputs/outputs through the great little MCP23017 chip. Each IO pin can be individually assigned as an input/output, can have a weak pull-up resistor enabled and can handle interrupts. It's a very fully-featured chip and you should <a href="https://ww1.microchip.com/downloads/en/DeviceDoc/21952b.pdf">read the datasheet</a> to learn more. It really isn't all that hard to understand.</p>
+<p>I used a handful of methods to get i2c up and running, from Quick2Wire's own Python library, which worked well but frustrated me with Pythonness. Diving over to Ruby I first used system calls to i2cset, expressed Port A and Port B of the MCP23017 as two bytes in a 16bit integer and used bitwise operations to turn on/off pins and extract the relevant byte of information for each port. This lead to ugly things like: "0x%x" % ( ( @leds & FIRST_BYTE ) >> 8 )</p>
+<p>After much effort, I then decided to look for a Ruby i2c library and stumbled across <a href="https://github.com/andec/i2c">Andec's WiringPi-compatible i2c library for Ruby</a> which was much cleaner to use.</p>
+<p>Using the i2c library I was able to ressurect my <a href="https://github.com/Gadgetoid/Ruby-RPi-Binary-Clock">Ruby Binary Clock</a> example and patch it to work with the MCP23017 using this drop-in, but by no means feature-complete, replacement for "gpio.rb":</p>
+<pre class="prettyprint linenums lang-ruby">class Gpio&#x000A;	require 'i2c'&#x000A;	@i2c = I2C.create('/dev/i2c-1')&#x000A;	@mcp = I2C::Drivers::MCP23017.new(@i2c,0x20)&#x000A;&#x000A;	def self.mode( pin, mode )&#x000A;		@mcp.mode( pin, mode )&#x000A;	end&#x000A;&#x000A;	def self.write( pin, value )&#x000A;		@mcp.write( pin, value )&#x000A;	end&#x000A;end</pre>
+<p>The MCP23017 driver in Andec's i2c library is beautifully easy to use. It needs only an instance of I2C and a device address, and will then expose PortA and PortB as a single continous series of pins numbered 0 to 15. A quick tweak of the pin numberings in my clock example, and it was up and running perfectly. I used 14 of the 16 available pins on the Port Expander, and will have to experiment with adding buttons on the remaining two.</p>
+<ul class="thumbnails">
+<li class="span4"><a rel="prettyPhoto" href="https://www.flickr.com/photos/65419961@N06/8535464777/" title="Quick2Wire IO Expander by gadgetoid, on Flickr"><img src="https://farm9.staticflickr.com/8520/8535464777_ffefde0fbf.jpg" width="500" height="375" alt="Quick2Wire IO Expander"></a></li>
+<li class="span4"><a rel="prettyPhoto" href="https://www.flickr.com/photos/65419961@N06/8536571534/" title="Quick2Wire Board Testing by gadgetoid, on Flickr"><img src="https://farm9.staticflickr.com/8382/8536571534_905acb22c0.jpg" width="500" height="375" alt="Quick2Wire Board Testing"></a></li>
+</ul>
+<p>The Quick2Wire Port Expander is a brilliant board that will save you having to fiddle with shift registers or other ICs to expand your IO.</p>
+<p>My only gripe with it is the arrangement of the PortA and PortB headers, which are a little close together for comfortably stuffing jump wires into. Personally I'd prefer them either side of the board, or arranged in a single row.</p>
+<p>The MCP2307 is extremely easy to understand and program once you get over the initial setup hurdle, although the Quick2Wire python examples are a little thin on the ground. It took <a href="https://unicorn.drogon.net/q2w.c">Gordon Drogon's C example</a> before I really grokked the chip and how to use it.</p>
+<p><a href="/code/mcp-clock.rb">Download my mcp-clock.rb binary clock example.</a> You will need 14 LEDs coupled with suitable resistors and connected to pins 2-15 of the Port Expander to see it in action. You can use the ground connection on the GPIO header of the main Quick2Wire board.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2013-03-10 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = undefined;
+            var disqus_url = 'https://pi.gadgetoid.com/post/034-quick2wire-port-expander-tested';
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li class="active"><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

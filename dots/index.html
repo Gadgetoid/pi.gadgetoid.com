@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Rapha&euml;lJS Dots | Pi @ Gadgetoid.com</title>
+<meta name="viewport" content="user-scalable=1.0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<style type="text/css">
+			* {margin:0;padding:0;list-style:none;font-family:Verdana, Arial, Sans-Serif;font-weight:normal;}
+			dl dt {font-weight:bold;}
+
+
+			#dots {width:600px;height:710px;margin:0 auto;}
+
+			#high_scores {
+				width:600px;
+				margin:0 auto;
+				background:#EEE;
+				border-radius:20px;
+				padding:20px;
+				margin-bottom:60px;
+			}
+			#high_scores h2 {font-size:1.2em;line-height:200%;}
+			#high_scores ol, #high_scores li {list-style:decimal;color:#666;}
+			#high_scores li {line-height:200%;margin-left:30px;}
+
+			#high_scores strong {font-family:"Lucida Console", Monaco, monospace;color:#;}
+
+			#high_scores li:nth-child(1) strong {color:#ff3333;}
+			#high_scores li:nth-child(2) strong {color:#9900cc;}
+			#high_scores li:nth-child(3) strong {color:#009999;}
+			#high_scores li:nth-child(4) strong {color:#ff9933;}
+
+			@media screen and (max-width: 401px) {
+				#dots {width:262px;height:230px;margin:0 auto;}
+				#high_scores {
+					border-radius:10px;
+				}
+			}
+
+			header {
+				background:#666;
+				height:30px;
+			}
+			h1 {
+				color:#FFFFFF;
+				font-size:12px;
+				line-height:30px;
+				padding:0 5px;
+				float:left;
+			}
+			ul {float:right;}
+			ul li {float:left;}
+			ul li a {
+				display:block;
+				font-size:12px;
+				line-height:30px;
+				height:30px;
+				padding:0 10px;
+				margin-left:1px;
+				text-decoration:none;
+				background-size: 16px 16px;
+				background-repeat: no-repeat;
+				background-position: 10px center;	
+				padding-left:30px;
+			}
+			ul li#tweet a {
+				background-color:#00ccff;
+				color:#FFFFFF;
+				background-image:url('https://twitter.com/favicons/favicon.ico');
+			}
+			ul li#tweet a:hover {
+				background-color:#00ddff;
+				color:#FFFFFF;
+			}
+			ul li#score a {
+				background-color:#CC0000;
+				color:#FFFFFF;
+				padding-left:10px;
+			}
+			ul li#score a:hover {
+				background-color:#DD0000;
+				color:#FFFFFF;
+			}
+	
+			article p {
+				font-size:12px;
+				line-height:20px;
+				padding:5px;
+			}
+		</style>
+</head>
+<body>
+<header>
+<h1>Rapha&euml;lJS Dots 2.0</h1>
+<ul>
+<li id="score"><a id="score_link" href="#high_scores">High Scores</a></li>
+<li id="tweet"><a id="tweet_link" href="https://twitter.com/share?url=http%3A%2F%2Fpi.gadgetoid.com%2Fdots&amp;via=gadgetoid&amp;text=I just scored on RaphaelJS Dots!" class="twitter-share-button">Tweet</a></li>
+</ul>
+</header>
+<article>
+<p>Click and drag to remove multiple dots of the same colour. More dots gives you more score!</p>
+<script src="https://pi.gadgetoid.com/dots/dots.gadgetoid-2.0.min.js></script>
+<script type="text/javascript">
+
+			function tweet(score){
+				document.getElementById('tweet_link').href = 'https://twitter.com/share?url=http%3A%2F%2Fpi.gadgetoid.com%2Fdots&via=gadgetoid&text=I just scored ' + score + ' points on RaphaelJS Dots!';
+				document.getElementById('tweet_link').innerHTML = 'Tweet your score of ' + score;
+			};
+
+			dots = GadgetoidDots("dots");
+
+			function setupDots(){
+			dots
+			.set_bg_col('#FFFFFF')
+			.set_game_size(6,6)
+			.set_dot_cols([
+				'#009999',
+				'#FF9933',
+				'#FF3333',
+				'#00CCFF',
+				'#9900CC'
+			])
+			.on_timeout(function(){
+				tweet(dots.get_state().score.total);
+			})
+			.set_dot_size(20,50)
+			.set_text_col('#333333')
+			if(window.innerWidth <= 400)
+			{
+				dots.set_dot_size(10,20);
+			}
+
+			dots.setup();
+			}
+
+			window.onresize = function(){
+			if(window.innerWidth <= 400)
+			{
+				dots.clear();
+				setupDots();
+				dots.begin();
+			}
+			};
+
+			setupDots();
+			dots.begin();
+
+			window.onload = function() {
+    				setTimeout(function() { window.scrollTo(0, 1) }, 100);
+			};
+		</script>
+</article>
+<div id="high_scores">
+<h2>High Scores</h2>
+<ol>
+<li><strong>12547:</strong> <a href="https://twitter.com/jestercole/status/341503924416696320">@jestercole</a></li>
+<li><strong>10777:</strong> <a href="https://twitter.com/Gadgetoid/status/341184737127305216">@gadgetoid</a></li>
+<li><strong>04495:</strong> <a href="https://twitter.com/prettygreentea/status/342056334029635585">@prettygreentea</a></li>
+<li><strong>04207:</strong> <a href="https://twitter.com/SadieMagoo/status/342352396569161728">@sadiemagoo</a></li>
+<li><strong>02125:</strong> <a href="https://twitter.com/Jayde_Matthews/status/343130800079925248">@jayde_matthews</a></li>
+</ol>
+</div>
+<footer>
+</footer>
+</body>
+</html>

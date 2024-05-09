@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pi GPIO Breakout Board and Port Expander Kits - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Pi GPIO Breakout Board and Port Expander Kits</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/pi-gpio-breakout-board-and-port-expander-kits&amp;t=Pi%20GPIO%20Breakout%20Board%20and%20Port%20Expander%20Kits%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Pi%20GPIO%20Breakout%20Board%20and%20Port%20Expander%20Kits%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/pi-gpio-breakout-board-and-port-expander-kits&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/pi-gpio-breakout-board-and-port-expander-kits" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>Although I may not have posted an update for a while, I've still kept myself abreast of the Pi and the various recent developments, and I'm still waiting for my second, hopefully Welsh manufactured, Pi to arrive. This will allow me a little more opportunity to hack around without disturbing this blog, which has now been hosted uninterrupted for 100 days on my Raspberry Pi.</p>
+<p>I've been keeping my eye on HobbyTronics, too, and as soon as they got the <a href="https://www.hobbytronics.co.uk/lcd/st7565-128x64-graphics-lcd-rgb-neg">ST7565 Negative LCD</a> in stock, I ordered it with a couple of their shiny new Pi accessories; the <a href="https://www.hobbytronics.co.uk/raspberry-pi-gpio-breakout">Raspberry Pi GPIO Breakout Board Kit</a> and the <a href="https://www.hobbytronics.co.uk/mcp23017-port-expander-board">Raspberry Pi MCP23017 Port Expander Board Kit</a>.</p>
+<p>Yesterday I soldered up the Pi GPIO breakout board and IO expansion board, and this morning I removed the SKPang case from my Pi, which doesn't fit a ribbon cable particularly well, and built the PiBow up around my running Pi. So, let's tackle these various different additions to my Pi armoury in no particular order.</p>
+<p><img src="/pibow-running.jpg" /><br/><strong>A small mod with wire cutters let the ribbon cable pass unhindered</strong></p>
+<p>First up, the PiBow. Is an attractive and cleverly engineered case which fits my Pi like a glove. It was easy enough to assemble around the running Pi, and the multi-layered construction makes for a very durable and very attractive case for toting the Pi around in a bag. Where it fell short, however, was the cut out for a GPIO ribbon cable. My cable either had atypically large connectors on the ends, or wasn't flexible enough, but I had to take the layer of the PiBow with a little groove for the ribbon cable and snip out a portion of the plastic. Ultimately, though, it was easy to do, and didn't ruin the look of the PiBow so it's not a huge complaint.</p>
+<p>The PiBow is good enough that I'm considering picking up a second one for my second Pi, I haven't yet seen another case that I particularly like yet. The PiBow really shows up the grey ribbon cable though, so I'm going to cave in and find a rainbow alternative.</p>
+<p>Next up, the HobbyTronics GPIO breakout board. Its a simple piece of kit which adapts the ribbon connection to a breadboard-friendly set of headers. Unlike the basic Adafruit Pi Cobbler, however, the HobbyTronics board includes an additional header which breaks out power, data and clock lines onto which the Port Expander board can be connected.</p>
+<p><img src="/pi-breakout-underslung-header.jpg" /><br/><strong>I soldered the headers underneath to keep things tidy and avoid needing to trim the pins</strong></p>
+<p>The expansion board is i2c and can be daisy-chained to provide more IO than you could possibly know what to do with. It also includes a socket, so you can pop the MCP23017 chip out and use it on a breadboard if you're so inclined.</p>
+<p>I was baffled by the fact that the included male and female headers didn't line up when placed on the port expander and GPIO breakout, but a quick look at the HobbyTronics website suggests pulling the male pins out of their plastic support and soldering them on individually. I did this, and plugged the pins into the female header while soldering to keep them lined up. I also soldered the headers underneath the boards, both because I think it looks better, and leaves the pin labels visible for future hackery.</p>
+<p>I also found that soldering them on top would cause problems with the abnormally long male pins touching the breadboard when the boards are inserted all the way.</p>
+<p>The GPIO breakout and port expander eat up a lot of room, so a 830 point breadboard is about the minimum you can get away with, without connecting the two with jump leads.</p>
+<p>With the low price and fairly simple construction ( any surface mount components are already soldered on ) these boards are an excellent and good value addition to your Pi. Just be wary that the GPIO breakout board does not include any additional protection for your Pi's GPIO pins. I'm pretty terrible at soldering, but still managed to assemble both quickly. Using a piece of old strip-board to align the headers made it easy, just pop the headers into the strip-board and pop the board on top to solder. You can also use breadboard for this, but I don't trust myself with plastic around a soldering iron!</p>
+<p><img src="/st7565-lcd.jpg" /><br/><strong>It may not look it, but to the eye this screen is beautifully crisp and readible from a fair distance</strong></p>
+<p>The ST7565 LCD is something I've been waiting to get my hands upon for a while. The negative model in particular works beautifully with the RGB backlight and can quite easily be adjusted to a super black positive LCD by inverting the contents of the buffer before sending it to the screen ( you can do this easily by subtracting each byte from 255 ). Its actually quite a lot more readable when inverted.</p>
+<p><img src="/st7565-arduino.jpg" /><br/><strong>Gratuitous wiring joins the Arduino and ST7565, but plenty of IO remains</strong></p>
+<p>Unfortunately the RGB backlight makes it very hard to achieve a consistent brightness when fading between colours, and it also requires PWM which I wouldn't entrust the Pi to provide directly. Fortunately the Arduino is a dab hand at things like this, and I will use one of my breadboard ATMega chips as a smart PWM driver, accepting colours over serial and handling the transition between whatever colour is currently displayed and the new one requested.</p>
+<p>Ultimately the Arduino is a brilliant stand-in for various IO expanders, handling ADC, PWM and digital IO with ease and lending a bit of intelligence, stability and autonomy to these processes.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2012-10-14 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = undefined;
+            var disqus_url = 'https://pi.gadgetoid.com/post/022-hobbytronics-pi-gpio-breakout';
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li class="active"><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

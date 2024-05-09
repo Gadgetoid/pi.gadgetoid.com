@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Arduino Due VGA Output - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="VGA video out on the Arduino Due using DueVGA" name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Arduino Due VGA Output</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/arduino-due-vga-output&amp;t=Arduino%20Due%20VGA%20Output%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Arduino%20Due%20VGA%20Output%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/arduino-due-vga-output&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/arduino-due-vga-output" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>One of the first things that excited me about the Arduino Due was the possibility of VGA output with nothing more than a few resistors, a VGA connector and a bundle of wires. Arduino Forum member Stimmer has produced a brilliantly fast and low level VGA library that gives 8-bit colour at 320x240 pixels. Plenty of output for basic games, graphics demos and other visual tinkering. You can get this library here: <a href="https://stimmer.github.io/DueVGA/" rel="nofollow">https://stimmer.github.io/DueVGA/</a></p>
+<h2>Getting Connected</h2>
+<p>VGA is fairly simple in the hardware department, requiring an array of 10 resistors which form two pairs of 3 ( 3 bits red, and 3 bits green ) and one pair of two ( 2 bits blue ) plus two for the horizontal and vertical sync signals. I found that the hardest part of building out an adaptor was finding the right resistor values, but a little trial and error on a breadboard and a seeming inability to discern between red and orange finally lead me to a working prototype.</p>
+<ul class="thumbnails">
+<li><a href="https://www.flickr.com/photos/65419961@N06/9651171797/" title="Arduino Due VGA Out Prototype by gadgetoid, on Flickr"><img src="https://farm8.staticflickr.com/7291/9651171797_79ba3f3d6d_c.jpg" alt="Arduino Due VGA Out Prototype"></a></li>
+<li><a href="https://www.flickr.com/photos/65419961@N06/9651173197/" title="Arduino Due VGA Out Hello World by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3816/9651173197_a285e59a33_c.jpg" alt="Arduino Due VGA Out Hello World"></a></li>
+</ul>
+<p>The next step was translating that prototype to perfboard. I used a small piece of <a rel="nofollow" href="https://www.clasohlson.com/uk/Circuit%20Boards/Pr223156000">3-hole breadboard</a> from Clas Ohlson. I used Fireworks to manually sketch out my design beforehand and compress it down to a cozy 11 tracks wide.</p>
+<p>10 of these tracks were broken into sets of 3 holes, and the 11th was continuous and used to join the ground on the Arduino Due to the ground on the VGA connector.</p>
+<ul class="thumbnails">
+<li><a href="https://www.flickr.com/photos/65419961@N06/9654413156/" title="Arduino Due VGA Out Perfboard Design by gadgetoid, on Flickr"><img src="https://farm6.staticflickr.com/5343/9654413156_5aa570568c_c.jpg" alt="Arduino Due VGA Out Perfboard Design"></a></li>
+<li><a href="https://www.flickr.com/photos/65419961@N06/9654408098/" title="Arduino Due VGA Perfboard by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3748/9654408098_67f472be11_c.jpg" alt="Arduino Due VGA Perfboard"></a></li>
+</ul>
+<p>I stood the resistors upright to save room, and managed to pack them into a perfect row of 10 with some spaghetti wiring joining them together. The downside of this design is that it overlaps a number of unused inputs on the Arduino Due. Fortunately I was able to tuck the wires for my MegaDrive controller port underneath my PCB and make use of these otherwise lost and forgotten inputs, so everything ended up very neat and tidy.</p>
+<p>Once set up and running, and after remembering to trim the leads off the resistors so they didn't intefere with each other, the picture was perfect. This is the first thing I've ever committed to perfboard, and I'm more than happy with the result.</p>
+<p><a href="https://www.flickr.com/photos/65419961@N06/9651178569/" title="Arduino Due VGA Out Perfboard Test by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3823/9651178569_7331c6f648_b.jpg" alt="Arduino Due VGA Out Perfboard Test"></a></p>
+<h2>Converting Bitmaps</h2>
+<p>After setting up DueVGA and assembling my adaptor, the next step was to do something interesting with my new-found VGA-output functionality. Many DueVGA users, including Stimmer, had concerned themselves with drawing fractal patterns which, although cool, didn't really interest me. I decided to ressurect some old tricks I used with Monochrome graphic LCDs on the ATMega328 and create a bitmap converter.</p>
+<p>The 8-bit output of DueVGA uses a number between 0 and 255 to represent a colour. The first three bits of this number represent Red, the second three Green and the last two Blue. In practise the bias toward Red and Green doesn't result in poor image reproduction, but having only a handful of possible blue values is an odd concept to grasp.</p>
+<p>My challenge was to map these 256 colours to their equivilent RGB/HEX colour codes and produce a palette file which allowed PNGs to be exported from Fireworks into a format suitable for crunching down for the Due.</p>
+<p>To do this I started with the 256 colour pallete from Wikipedia: <a href="https://en.wikipedia.org/wiki/File:256colour.png">https://en.wikipedia.org/wiki/File:256colour.png</a>. This gave me a list of all possible colour values which the DueVGA could theoretically produce. Some amount of muddling was required to figure out which colour on this palette corresponded to which colour index on DueVGA. If you look at my <a href="https://pi.gadgetoid.com/arduino-due/DueVGA-colour-table">Due VGA Colour Table</a> you'll see why. Rather than the colours running sequentially from left to right and looping underneath, the palette was separated into blocks of 32 colours with the value of Blue running from left to right and the value of Green running from top to bottom. Each block of 32 colours represented an increase in the value of Red- so this resulted in 8 (Red) blocks of 4 (Blue) by 8 (Green) colour.</p>
+<p>To avoid tripping over colours in future, I used a Ruby script to produce my <a href="https://pi.gadgetoid.com/arduino-due/DueVGA-colour-table">Due VGA Colour Table</a>. This shows the 8-bit hex notation for each colour from 0x00 to 0xFF and makes it easy to pluck a colour out if you need to use it directly in your code. On mouseover, it also shows the binary value and the 24-bit hex colour you're probably more likely to recognise from desktop graphics applications. If you're putting together some bitmap graphics for your DueVGA project then you can use these colours in your graphics package of choice.</p>
+<p>Alternatively, if your graphics package supports .act colour palettes then you can load up this <a href="https://pi.gadgetoid.com/arduino-due/8bit-truecolor-palette.act">8bit-truecolor-palette.act</a> file. This is excellent for compressing and dithering more complex images for display on the Arduino VGA, and I've had pretty stunning results with a range of photos.</p>
+<ul class="thumbnails">
+<li><a href="https://www.flickr.com/photos/65419961@N06/9651185041/" title="Arduino Due VGA Out Simcity Test by gadgetoid, on Flickr"><img src="https://farm4.staticflickr.com/3673/9651185041_fe29d67195_c.jpg" alt="Arduino Due VGA Out Simcity Test"></a></li>
+<li><a href="https://www.flickr.com/photos/65419961@N06/9654418526/" title="Arduino Due VGA Photo Test by gadgetoid, on Flickr"><img src="https://farm8.staticflickr.com/7282/9654418526_8a1113a16f_c.jpg" alt="Arduino Due VGA Photo Test"></a></li>
+</ul>
+<p>The final step in converting a bitmap is to take your exported, palettized PNG file and, with the help of Ruby and the Chunky PNG ( which is free from the dependency hell of Image Magick ), crunch it into a "static unsigned char" array of 8-bit colour values. For this you can use Convert.rb from my <a href="https://github.com/Gadgetoid/Arduino-DueVGA-Tools">Arduino DueVGA Tools repo on GitHub.</a></p>
+<h2>Indexed Palettes And Byte Packing</h2>
+<p>If you're not using the full 256 colour palette for your image, I've also added index-palette support into Convert.rb which will give you a palette of 15 colours with the 16th reserved for transparency. This allows twice as many pixels to be packed into the same number of bytes, halving the size of your data. If you can get to grips with Convert.rb you'll also find it stores 3 bytes of metadata in each image containing the Width, Height and Frame Count. I use these values in my code to animate 16-colour sprites and by not hard-coding these values I can use a generic function for various different sizes of sprite. See DueVGABitmap.ino for an example of this in action!</p>
+<h2>Getting Technical</h2>
+<p>Another little trinket in my DueVGA Tools library is my HSV ( Hue, Saturation, Value ) colour to 8-bit colour convertion function. Stimmer may implement this directly in the DueVGA library. It provides a very clean and simple way of transitioning between colours ( by just incrementing the Hue value ) and is a mostly integer-implemented spin on the standard HSV-to-RGB functions you may have encountered before in Arduino LED lighting projects.</p>
+<p>Where the DueVGA HSV to RGB differs is in the weighting of the final colour values and their packing into a single byte representing a colour that DueVGA can display.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2013-09-02 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = 'post-57';
+            var disqus_url = undefined;
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li class="active"><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parallax Propeller P8X32A First Impressions - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Parallax Propeller P8X32A First Impressions</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/parallax-propeller-p8x32a-first-impressions&amp;t=Parallax%20Propeller%20P8X32A%20First%20Impressions%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Parallax%20Propeller%20P8X32A%20First%20Impressions%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/parallax-propeller-p8x32a-first-impressions&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/parallax-propeller-p8x32a-first-impressions" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>Parallax are the embodiment of the classic underdog tale, and their commitment to doing things differently and keeping close to the makers and enthusiasts who made them what they are today is really what makes them special. Founded in the bedroom of Chip Gracey in response to the lack of hardware/software education opportunities, Parallax have always been a company by makers, for makers.</p>
+<p>Although they’re no PIC or AVR, Parallax could arguably be attributed as the founder of widespread homebrew microcontroller development. As far back as 1992 they developed the BASIC Stamp, the tool that they needed to power their own hobby projects. This postage-stamp sized, affordable microcontroller gained traction quickly and created its own industry. By letting ordinary folks program microcontrollers for the first time, it gained widespread appeal among everyone from scientists and engineers to bedroom-bound hobbyists. They had shifted over 125,000 BASIC Stamps by the end of 1998 and developed a range of peripherals to support them. By 2002 this had grown to over 3 million. The BASIC Stamp was very much the Arduino of the last two decades, and in fact predated the current hobbyist go-to by over 10 years.</p>
+<p>With the success of the BASIC Stamp giving Parallax a solid foundation, Chip turned his attention to designing the bold and unconventional Propeller Microcontroller. The Propeller, known more specifically as the P8X32A, was introduced way back in 2006 and now has a diverse array of education and maker-friendly form factors. In this article I’ll be giving you my first impressions of the Arduino-like and shield compatible Propeller ASC+.</p>
+<h2>What is the P8X32A?</h2>
+<p>The Propeller Microcontroller is a beautifully quirky detachment from what we’re normally familiar with in the world of Microcontrollers. First and foremost it’s multi-core, featuring 8 32-bit cores called “cogs”. This is a little bit like having 8 Arduinos connected together and running from the same codebase- you can instruct a cog to perform a task, and it’ll run happily in its own little world and let your main program flow continue uninterrupted.</p>
+<p>Secondly, and somewhat more controversially, the Propeller is devoid of any purpose-specific peripherals. It doesn’t have an ADC, it doesn’t have PWM, it doesn’t have a watchdog timer, or interrupts and, surprisingly, it doesn’t even have any onboard non-volatile memory… at… all.</p>
+<p>This may make the P8X32A sound utterly dismal, but many of these things are balanced out effortlessly by the sheer amount of processing power available on its 8 cores. You can, for example, dedicate a core ( or cog in Propeller-speak ) entirely to generating a PWM frequency, or to acting as a VGA driver, or a driver for WS2812 or SPD8806 LED strands, or to polling for certain conditions and acting as an interrupt-handler.</p>
+<p>The P8X32A is also not as robust as you might expect a common AVR ATMega Microcontroller to be, it only supports 3.3v signals and thus requires logic level conversion to interface with 5v systems. These are pretty rare, admittedly, and many sensors and devices commonly used by hobbyists either only work at 3.3v, or are happy with it.</p>
+<p>The P8X32A has its differences, or its quirks if you will, and these are what make it interesting. It’s most definitely not an AVR and clearly not a PIC. It is different, and new. This is exactly what drew me to the P8X32A and, as you’ll find in these first impressions and any future rantings about the Propeller, exactly what made hacking around with this new toy fun.</p>
+<p>The Propeller can run up to a whopping 80mhz, every cog processes instructions simultaneously and they can be started and stopped on-the-fly as and when you need them. Using Propeller Spin language and the Spin interpreter you can even create self-modifying code if the fancy takes you. It’s a cool architecture, and a great challenge for someone looking to graduate from from Arduino and test their mettle with some new concepts.</p>
+<h2>What is the ASC+</h2>
+<p>First off, ASC stands for Arduino Shield Compatible. But acronyms aside, just a single glance at the layout of the board makes it pretty obvious which market it’s aimed squarely at. The ASC+ is touted as a powerful, drop-in replacement to an Arduino UNO/Leonardo and is intended to be an easy way to add some oomph to your projects without a total change of form factor.</p>
+<p>The ASC+ takes a P8X32A and combines it with all the support peripherals required to make it behave more-or-less like an Arduino. This includes an ADC, of course, to give it 8 analog inputs and a 64KB EEPROM that gives you 32K of program space, and 32K of data storage. It’s also got an integrated Micro SD slot on the underside of the board, handy for storing logs, data files, wav files and, if I’m not mistaken ( and with the right bootloader ), even program code and, if you’re completely bonkers, additional ( but slow ) memory.</p>
+<p>The handling of 5v signals is done by means of an inline 2.2k resistor for each Arduino shield header pin. This is an ever-so-slightly untidy solution and means you must add a solder bridge across two pads underneath each pin if you wish to use them reliably for high-speed 3.3v signals.</p>
+<p>The combination of an interesting new Microcontroller with a familiar format is comforting and a great way to explore new possibilities with slightly more of a safety net and less of a learning curve than a bare 40-pin DIP.</p>
+<h2>So, is it hot or not?</h2>
+<p>I say hot. The Propeller is not new, and many of you may have come across it before, but it is an excellent way to start playing with something a little different. Its killer feature is true multi-core support, those 8 32-bit cores can be put to a diverse range of uses and can run a mix of assembly, spin or compiled C. In my first experiments I set it up to drive 26 WS2812 and 160 LPD8806 pixels simultaneously- the LPD8806 had a slug of inline Spin running in its own cog, the WS2812 was implemented in Assembly also running in its own cog and my glue code was written in C using Simple IDE. In my next Propeller article, I’ll tell you how I got this set up and hopefully give you some pointed for replicating my success- after that… who knows! I’ve got 3 cogs left unused and I’m eager to see how far I can push this micro.</p>
+<p>What makes the Propeller P8X32A even hotter right now is the fact that it’s open source: https://www.parallax.com/microcontrollers/propeller-1-open-source. If you already have a sufficiently beefy FPGA board then you can fabricate your own Propeller chip and start programming and tweaking it. Parallax are working on a Propeller successor, and are clearly hoping that the feedback and improvements they see on the open-source P8X32A will be useful for refining the design of the Propeller 2. There’s nothing cooler than a hobbyist-friendly company who both listen to their customers and share their IP for the wider benefit of all- Parallax are awesome people doing awesome things and I highly recommend tinkering with their boards.</p>
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2014-11-19 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = 'post-64';
+            var disqus_url = undefined;
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li class="active"><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>

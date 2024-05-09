@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<head>
+<meta charset="UTF-8">
+		<title>Dots | Pi @ Gadgetoid.com</title>
+	</head>
+	<body>
+
+		<h1>Dots!</h1>
+		<h2>Version 1.8</p>
+		<p>A simple dot-matching game written in Javascript, using RaphaelJS</p>
+		<p>See <a href="https://pi.gadgetoid.com">pi.gadgetoid.com</a> for more Philip "Gadgetoid" Howard shinies.</p>
+
+		<h3>Changelog:</h3>
+		<ul>
+			<li>"No legal move" detection</li>
+			<li>Fresh playing field each turn</li>
+			<li>Diagonal moves, plus legal move configuration options</li>
+		</ul>
+
+		<div id="dots-game"></div>
+        <script src="https://cdn.jsdelivr.net/raphael/2.1.0/raphael-min.js"></script>
+		<script src="https://pi.gadgetoid.com/dots/dots-1.8.gadgetoid.min.js"></script>
+		<script>
+			game.settings.canvas = "dots-game";
+			game.settings.show_path = false;
+			game.settings.dots.x = 7;
+			game.settings.dots.y = 7;
+			game.settings.dot_radius = 8;
+			game.settings.dot_spacing = 20;
+			/*
+			game.settings.background = [0xEA,0xEF,0xDD];
+			game.settings.text = [0x56,0x5B,0x49];
+			*/
+			game.settings.time = 120;
+			game.start();
+		</script>
+
+		<p>You can embed this game in your website using the following snippet:</p>
+		<textarea rows="13" cols="90"><div id="dots-game"></div>
+<script src="https://cdn.jsdelivr.net/raphael/2.1.0/raphael-min.js"></script>
+		<script src="https://pi.gadgetoid.com/dots/dots-1.8.gadgetoid.min.js"></script>
+<script>
+	game.settings.canvas = "dots-game";
+	game.settings.show_path = false;
+	game.settings.dots.x = 7;
+	game.settings.dots.y = 7;
+	game.settings.dot_radius = 10;
+	game.settings.dot_spacing = 20;
+	game.settings.time = 120;
+	
+	// Classic mode
+	game.settings.horizontal = true;
+	game.settings.vertical = true;
+	game.settings.diagonal = false;
+
+	game.start();
+</script>
+		</textarea>
+
+		<p>You can also set custom colours like so. Use either RGB colours [255,255,255] or hex colours (FFFFFF) with 0x before each pair of letters [0xFF,0xFF,0xFF]:</p>
+		<p>( Note: You can use any number of dot colours from 2 upwards, but 5 is best for normal sized games. )</p>
+		<textarea rows="11" cols="90">	// Background and text
+	game.settings.background = [0xEA,0xEF,0xDD];
+	game.settings.text = [0x56,0x5B,0x49];
+	// Dot colours
+	game.colours = [
+			[0x2E,0xCC,0x71],
+			[0x34,0x98,0xDB],
+			[0x9B,0x59,0xB6],
+			[0xF1,0xC4,0x0F],
+			[0xE7,0x4C,0x3C]
+		]</textarea>
+
+	</body>
+</html>

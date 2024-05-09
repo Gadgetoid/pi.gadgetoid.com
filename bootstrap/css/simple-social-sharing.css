@@ -1,0 +1,55 @@
+/*
+Author  : Boon
+URL     : https://builtbyboon.com
+Twitter	: https://twitter.com/mattberridge
+---------------------------------------*/
+
+
+/* -- Begin social sharing buttons
+------------------------------------------------------------- */
+.ss-share {
+	font-family:'Julius Sans One',Sans-Serif;
+  padding-left: 0;
+  list-style: none;
+	margin-left:0;
+	margin-bottom:2em; }
+
+.ss-share-item {
+  display: inline;
+  margin-right: 1em; }
+
+.ss-share-link {
+  text-decoration: none;
+  color: #444;
+  font-weight: normal;
+  padding: .5em .75em .5em .75em;
+  background-color: #f5f5f5;
+  border: 0px;
+  border-radius: 0px;
+	font-size:80%; 
+	color:#FFFFFF;}
+
+.ss-share-link:hover {
+	color:#FFFFFF;
+}
+
+.ico-facebook,.ico-twitter,.ico-google {
+  display: inline-block;
+  background-size: 16px 16px;
+  background-repeat: no-repeat;
+  background-position: 10px center; }
+
+.ico-facebook {
+  /*background-image: url("https://www.facebook.com/favicon.ico");*/
+	background-color: #3498DB; }
+.ico-facebook:hover {background-color: #2980B9;}
+
+.ico-twitter {
+  /*background-image: url("https://twitter.com/favicons/favicon.ico");*/
+	background-color: #34495E; }
+.ico-twitter:hover {background-color: #2C3E50;}
+
+.ico-google {
+  /*background-image: url("https://ssl.gstatic.com/s2/oz/images/faviconr2.ico");*/
+	background-color: #E74C3C; }
+.ico-google:hover {background-color: #C0392B;}

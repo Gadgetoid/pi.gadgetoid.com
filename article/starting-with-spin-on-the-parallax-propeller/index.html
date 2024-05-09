@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset="UTF-8">
+<title>Starting with SPIN on the Parallax Propeller - Raspberry Pi @ Gadgetoid</title>
+<meta content='width=device-width, initial-scale=1.0' name='viewport'>
+<meta name='description'>
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.8.0/css/fontawesome.min.css" rel='stylesheet'>
+<link href='/style/custom.css' rel='stylesheet'>
+<link href='/prettify/prettify.css' rel='stylesheet'>
+<link href='/favicon.png' rel='icon'>
+<link href="https://pi.gadgetoid.com/rss" rel='alternate' title='RSS' type='application/rss+xml'>
+
+</head>
+<body>
+<header>
+<div class='logo' onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</header>
+<div class='main'>
+<section>
+<article>
+<h1>Starting with SPIN on the Parallax Propeller</h1>
+<ul class='ss-share'>
+<li class='ss-share-item'>
+<a class='ss-share-link ico-facebook' href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/starting-with-spin-on-the-parallax-propeller&amp;t=Starting%20with%20SPIN%20on%20the%20Parallax%20Propeller%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel='nofollow' target='_blank'>
+<i class='icon-facebook'></i>
+Share on Facebook
+</a>
+</li>
+<li class='ss-share-item'>
+<a class='ss-share-link ico-twitter' href="https://twitter.com/share?text=Starting%20with%20SPIN%20on%20the%20Parallax%20Propeller%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/starting-with-spin-on-the-parallax-propeller&amp;via=gadgetoid" rel='nofollow' target='_blank'>
+<i class='icon-twitter'></i>
+Share on Twitter
+</a>
+</li>
+<li class='ss-share-item'>
+<a class='ss-share-link ico-google' href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/starting-with-spin-on-the-parallax-propeller" rel='nofollow' target='_blank'>
+<i class='icon-google-plus'></i>
+Share on Google
+</a>
+</li>
+</ul>
+<p>In my last article I introduced hobbyist veterans Parallax and their Propeller Microcontroller. The oft-overlooked multi-core gem is available in many form factors, but I got my hands on the Arduino-shield-compatible ASC+ to test.</p>
+<p>I imagined that this article would be about C, and the new-fangled C compiler and development tools that have all but replaced Parallax’s house language, SPIN, and Parallax’s own development tools. But then I found myself intrigued by the SPIN language, and by Propeller Assembly and couldn’t help but dig deeper. So, I’ll reserve my C tinkering with blinky lights for the next article and instead walk you through my journey of discovery with SPIN. This is something of a brain dump, so apologies if it’s erratic and poorly structured, otherwise I hope you enjoy!</p>
+<p>This article isn't going to detail how to get started, but rather an attempt to make you want to get started!</p>
+<h3>What on earth is SPIN?</h3>
+<p>SPIN has been described as a cross between Pascal/Fortran and BASIC. I’ve no experience with Pascal or Fortran, but I can detect a little of BASIC’s DNA within the language. It’s no surprise that Parallax would take this direction, given their strong association with BASIC through the BASIC stamp microcontroller. SPIN is clearly a beefed-up BASIC that I'd guess was designed to be at least somewhat familiar to their existing users, while working in a whole lot of useful syntax sugar and, of course, support for the multi-core nature of the Propeller.</p>
+<p>SPIN is compiled into bytecode and executed by a software interpreter which is stored within the Propeller’s built-in ROM. This interpreter is copied to each cog ( core ) that needs to run SPIN. The astute should spot two potential “problems” with this setup- first and foremost, precious memory is being expended on the interpreter, and second, interpreted languages are inherently slower than their raw machine-language counterparts.</p>
+<p>Contrary to the first point above, however, SPIN can actually be more space-efficient than Propeller Assembly. A SPIN opcode is only one byte long, with optional byte-long parameters following it. Propeller Assembly opcodes, however, are always 4 bytes long.</p>
+<p>I put this to the test fairly unscientifically with an I2C driver available in both SPIN and PASM. The PASM driver compiled to about 1000 bytes ( 250 longs ) and the SPIN driver compiled to 612 bytes ( 153 longs ). Now these are functionally similar, but not exactly equivalent libraries, but it illustrates a point- you can, if you wish, trade performance for size.</p>
+<p>Except that you don’t need to do this with the Propeller. The multi-core design is ingeniously architected in such a way that you can use PASM for lean bits of code you need to run quickly, and SPIN for bulky chunks of code that aren’t performance critical. Any cog ( core ) can run one or the other, and running a chunk of assembly on a cog is as simple as telling it where to look. At runtime the assembly opcodes are copied from the primary code memory into the cog you’re starting, and then executed.</p>
+<h3>Propeller Magic!</h3>
+<p>This leads me onto one of my little Propeller discoveries ( I’ve had a number of pleasant surprises playing with this Microcontroller ), which I happened upon by chance while playing with some basic Blinky examples in PASM.</p>
+<p>Because the assembly is copied from memory to the cog in which you want to run it, and because even data flashed to the EEPROM is copied into the Propeller main memory before you actually run it, something magical is possible. You can modify assembly opcodes at runtime before sending them to a cog.</p>
+<p>The practical upshot of this is slightly bonkers. You could, for example, run a serial terminal monitor on one cog, accept packets of assembly code, execute them on other cogs and return the results. Now, I’ve not tried this and couldn’t think of a reason why you’d want to, other than it’s cool, but... well... it it’s cool!</p>
+<h3>My first steps with SPIN</h3>
+<p>Now it’s probably time to cut the waffle and get to the point. Working with SPIN on the Propeller requires, of course, a compiler and an IDE.</p>
+<p>Now, there are great tools out there for the Propeller, but Parallax don’t make it particularly straightforward to find them. The ASC+ product page, which was my starting point for information about the board I’d been given to test, links only to a dry schematic ( none the less useful ) and a somewhat crusty wiki page that recommends either Brad’s Spin Tool, which was seemingly last updated in 2010 and decidedly crusty ( although perfectly functional ) or Parallax’s own Propeller SPIN Tool, which is Windows only and apparently last updated in 2010.</p>
+<p>I downloaded both of the above, using Parallax’s own SPIN Tool quite happily on Windows, and then switching to Brad’s Spin Tool on my Mac. Both of these applications worked perfectly fine and allowed me to get a brief look at SPIN, which appeared daunting at the time, but I quickly abandoned them and switched to the C/C++ capable SimpleIDE. Until a couple of days ago...</p>
+<p>I’d had a sudden urge to try SPIN again, and it was through a Parallax news post, of all things, that I discovered they had a recently-opened GitHub account full of juicy open-source software repositories. If you were around when Arduino first landed and was being touted as “The Basic Stamp Killer”, you’ll know that, aside from price, one of the major criticisms of Parallax’s BASIC stamp offering was the lack of open source software and, more so, the lack of anything other than Windows support. It’s taken them a long time, but Parallax are finally beginning to embrace, support and publicise the growing effort to make their products easier to use and more widespread.</p>
+<p>I found it surprising that only the new post really drew attention to this GitHub goldmine; I’ve been involved in evaluating alternatives to the AVR at Pimoroni, and one of the biggest considerations is the availability of good tools. Parallax should be beating makers around the head with this software, waving their arms, and shouting from the rooftops about it, it’s a big deal! Okay, so it was only announced a couple of weeks ago, but when it comes to selling makers a shiny Arduino alternative, then the availability of actively maintained, multi-platform software support is second only to good documentation and support.</p>
+<p>Parallax have nailed the latter; their forums are a vibrant and bustling hive of Propeller and BASIC Stamp veterans, all eager to share their passion for the devices. Even Parallax’s own engineers drop in from time to time, how often does Joe-maker get to talk to chip designers at Atmel?</p>
+<h3>Stumbling upon Propeller IDE</h3>
+<p>So, after much deliberation, exploration and several good barks up several wrong trees I arrive at Propeller IDE ( https://github.com/parallaxinc/PropellerIDE ). For the remainder of my Propeller articles I’ll be talking about either Propeller IDE, or the PropGCC-based Simple IDE- everything else, functional though it may be, seems outdated, unmaintained, out of fashion or poorly documented.</p>
+<p>Propeller IDE is an open-source IDE for the Parallax propeller that’s built around OpenSPIN, an open-source compiler for the SPIN language. Unlike the, *cough*, festering sack of ungainly awful broken and horrid Java kludge that is the Arduino IDE ( I tend to use AVR GCC and any other editor ever and avoid the Arduino libraries completely ) the Propeller IDE is lean, fast and somewhat more capable.</p>
+<p>Okay, to be fair the Arduino IDE is at somewhat of a disadvantage by comparison, having to support multiple Programmers, and multiple different architectures really holds it back. With the sum total of one single Microcontroller to support, the Propeller IDE is expected to be much more focussed, far more uncluttered and much easier to get started with.</p>
+<p>And it really is. I love using Propeller IDE. It touts everything from uncomplicated code-compiles, to automatic detection of the serial port your Propeller is connected to. It boasts extremely fast, straight-to-memory uploads of code. It brings a tear to the eye with a one-click code-upload and serial terminal button, and leaves minds thoroughly melted with tree-view browsing of objects and methods, and auto-complete, and ... I think that’s actually everything I’ve learned about it to-date.</p>
+<p>The only thing Propeller IDE isn’t, is aesthetically pleasing. Somewhere, at some point during the inception of the SPIN language someone decided that sections should be highlighted with garish and obnoxious background colours.</p>
+<p>Let me just fill you in on what I mean by sections, since I glossed over that in my summary of the SPIN language. A section is a portion of the code with a very specific task and SPIN has a number of these. The CON section is where you define all your constants, the VAR section all your variables, the OBJ section all your objects, each PUB section describes a public subroutine ( you might know them as a function or method ) and each PRI section describes a private subroutine. You can also have a DAT section, where you can simply switch seamlessly into PASM and write assembly to be loaded into cogs for those time-sensitive tasks.</p>
+<p>I love the section structure, it promotes good practises and keeps code tidy and readable. There’s also something brilliant about the background highlighting, the alternating colours make it really, really easy to visually parse code, and any two adjacent PUB, or PRI sections will have alternating shades of the same colour to make it obvious where one subroutine ends and another begins.</p>
+<p><img src="/propelleride-rainbows.jpg"></p>
+<p>Unfortunately it looks horrible. Fortunately, however, PropellerIDE is open source... so tweaking these colours to a simple dark-navy-blue alternating pattern shouldn’t be too much of a struggle! I must try!</p>
+<p>Incidentally you can also have adjacent CON sections, and these are handled with alternating shades... why in the world you’d ever want to do this is beyond me, but it’s handled gracefully if you do.</p>
+<h3>Wrapping up!</h3>
+<p>Okay, I think I’ve written quite enough for one post. The important points to remember from this wall-o-brain dump is that the Propeller is cool, the software is painless, responsive and fast, and Parallax are clearly making every effort to appeal to the maker community in order to, perhaps, make up some ground while Arduino appear to be somewhat grasping for direction and meaning ( I love Arduino, but I feel they’ve really lost the plot lately ). I found it easy enough to find the guidance I needed to get started with SPIN, even with the Parallax forums being offline for the past few days, and I feel that it’s really quite a good prospect for a maker looking to stray away from the trendy brand-name platform.</p>
+<h3>Disclaimer</h3>
+<p>Although Parallax were kind enough to supply me with an ASC+ to play with, they are neither paying nor encouraging me to extoll the virtues of their product. I use AVRs on a regular basis as part of my job at Pimoroni, but am always ready to get excited about something different- these articles serve to chronicle that excitement, and hopefully instill it in you.</p>
+<p>
+<a href='/'>&laquo; Back to index</a>
+<span class='pull-right'>Posted on 2014-11-22 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id='disqus_thread'></div>
+<script type='text/javascript'>
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = 'post-65';
+            var disqus_url = undefined;
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class='logo small'>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class='links'>
+<li>
+<a href='https://github.com/gadgetoid'>
+<i class='icon-github-alt'></i>
+GitHub
+</a>
+<li>
+<a href="https://pinterest.com/gadgetoid/">
+<i class='icon-pinterest'></i>
+Pinterest
+</a>
+</li>
+<li>
+<a href='https://twitter.com/gadgetoid'>
+<i class='icon-twitter'></i>
+Twitter
+</a>
+</li>
+</li>
+</ul>
+<p>
+Try our interactive
+<a href='/pinout'>Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class='logo small'>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class='articles'>
+<li class="active"><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class='logo small'>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class='nav nav-pills nav-stacked'>
+<li>
+<a href="https://www.raspberrypi.org/phpBB3/">
+<i class='icon-external-link'></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a href='https://elinux.org/R-Pi_Hub'>
+<i class='icon-external-link'></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a href="https://www.flickr.com/groups/1884120@N23/">
+<i class='icon-external-link'></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a href='https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB'>
+<i class='icon-external-link'></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a href='https://www.bootc.net/projects/raspberry-pi-kernel/'>
+<i class='icon-external-link'></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a href='https://github.com/WiringPi'>
+<i class='icon-external-link'></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a href='https://projects.drogon.net/raspberry-pi/wiringpi/'>
+<i class='icon-external-link'></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a href='https://www.usrben.com/'>
+<i class='icon-external-link'></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>
