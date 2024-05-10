@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi - Raspberry Pi @ Gadgetoid</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="Building a barebones Arduino-compatible for your Raspberry Pi for just £5" name="description">
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.4/css/all.css" rel="stylesheet">
+<link href="/style/custom.css" rel="stylesheet">
+<link href="/prettify/prettify.css" rel="stylesheet">
+<link href="/favicon.png" rel="icon">
+
+</head>
+<body>
+<header>
+<div class="logo" onclick="javascript:window.location.href='/';">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<p>
+<p>
+This website was originally written in Ruby
+and hosted on the Raspberry Pi. It's now archived
+at <a href="https://github.com/gadgetoid/pi.gadgetoid.com">GitHub</a>
+for posterity!
+</p>
+</p>
+</header>
+<div class="main">
+<section>
+<article>
+<h1>Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</h1>
+<ul class="ss-share">
+<li class="ss-share-item">
+<a class="ss-share-link ico-facebook" href="https://www.facebook.com/sharer.php?u=https://pi.gadgetoid.com/article/programming-your-pico-piduino&amp;t=Programming%20Your%20Pico%20PiDuino%20-%20Raspberry%20Pi%20@%20Gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-facebook"></i>
+Share on Facebook
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-twitter" href="https://twitter.com/share?text=Programming%20Your%20Pico%20PiDuino%20-%20Raspberry%20Pi%20@%20Gadgetoid&amp;url=https://pi.gadgetoid.com/article/programming-your-pico-piduino&amp;via=gadgetoid" rel="nofollow" target="_blank">
+<i class="fab fa-twitter"></i>
+Share on Twitter
+</a>
+</li>
+<li class="ss-share-item">
+<a class="ss-share-link ico-google" href="https://plus.google.com/share?url=https://pi.gadgetoid.com/article/programming-your-pico-piduino" rel="nofollow" target="_blank">
+<i class="fab fa-google-plus"></i>
+Share on Google
+</a>
+</li>
+</ul>
+
+    <p>There's little doubt that you've at least heard of Arduino if you're interested in hacking around with hardware on the Raspberry Pi.</p>
+    <p>Arduino have brought a whole variety of Atmel-based boards to the market, coupled with the easy to use Arduino IDE, in an effort to let hardware hackers, hobbyists and professional prototypers easily get up and running with Microprocessor development. Unfortunately, the official Arduino boards can be a little pricy if you're just wanting to dip your toes into the Arduino/Microprocess programming water.</p>
+    <p>The good news is that all you really need is an Atmel ATmega processor, a handful of components and a Raspberry Pi. You can pick all this up ( apart from the Pi ) for little over a fiver.</p>
+    <p>I should probably start with a disclaimer; the Arduino-compatible we're going to build in this tutorial is absolutely, totally, irresponsibly barebones. In a proper breadboard Arduino build you should have a host of capacitors to decouple your power supply, and probably at least some protection circuitry between it and your Pi. If you're at all concerned about blowing up your Pi, read no further!</p>
+    <p><a href="https://www.flickr.com/photos/65419961@N06/9701632145/" title="Pico PiDuino with LEDs by gadgetoid, on Flickr"><img src="https://farm8.staticflickr.com/7389/9701632145_2ce492a17c_c.jpg" alt="Pico PiDuino with LEDs"></a></p>
+    <h2>Introducing the Pico PiDuino</h2>
+    <p>This is the first in a series of guides detailing how to build and program an ATmega 328-based Arduino-compatible microcontroller using only your Raspberry Pi.</p>
+    <p>First, I'll will walk you through obtaining the parts and assembling what I will refer to henceforth as the Pico PiDuino.</p>
+    <p>The next guide in this series will teach you how to program it, and then talk to it over serial from the Pi.</p>
+    <p>The Pico PiDuino is a barebones Arduino-compatible, that means it works with the Arduino IDE and uses the Arduino bootloader. It's designed specifically to be connected to, and powered by the Pi - but you can program it with a USB-to-Serial breakout or power it standalone with a handful of batteries or even, with the right components, a mains adaptor.</p>
+    <h2>Why learn to program an ATmega/Arduino?</h2>
+    <p>Because of their flexibility and robustness, being able to program a microcontroller is a useful and rewarding skill to have, and it's fortunate that it's possible to leverage your Pi to get started quickly and cheaply with a trusty ATmega 328.</p>
+    <ul>
+    <li>Learning to program an ATmega, or Arduino, will allow you to build much more specialist control systems which use less power, are much less complex, less prone to failure and more robust than the Pi. These are great for things that the Pi isn't necessary for.</li>
+    <li>Once you've grasped the basics and have a project in mind, you can even move on to playing with some of the brilliant official Arduino boards and all the programming skills you pick up will translate right over.</li>
+    <li>If you're wanting to produce your own product for sale, you can build your own hardware around an Arduino-compatible ATmega, program your software in the IDE and ship a finished design supporting an ATmega 328p or similar microprocessor.</li>
+    <li>It's a fun challenge for a weekend.</li>
+    </ul>
+    <h2>The bill of materials</h2>
+    <p>If you're still with me, then I'm going to assume you've got a reckless and irresponsible streak and want to hook an ATmega directly to your Pi and get started as fast and cheap as possible. Enough introduction; Let's get started!</p>
+    <p>You will need:</p>
+    <ul>
+    <li>One ATmega 328p Microproccessor, in a 28-pin, breadboard-friendly package</li>
+    <li>One 16Mhz Crystal Oscillator</li>
+    <li>4 LEDs, it doesn't matter what colour but Red, Orange, Yellow and Green look nice together</li>
+    <li>4 resistors for your LEDs, about 220 Ohm or higher</li>
+    <li>8 female-to-male jump wires for connecting your Pi to the Breadboard Arduino-compatible</li>
+    <li>4 male-to-male jump wires for wiring up the Breadboard Arduino-compatible ( or 3 jump wires and a 0Ohm resistor )</li>
+    <li>And to build it on: One 170 point breadboard, the really, really tiny one</li>
+    </ul>
+    <p>To avoid confusion, I recommend using Red and Black wires for your Live and Ground connections and picking 8 other distinct colours, if you can, for the other connections. Connecting leads in the wrong place can have "undesired" results. To be extra-safe you should always shut down your Pi before connecting jump leads, but I'll let you in on a secret; I don't!</p>
+    <p>The best way to get most of the parts you need is the fantastically good value <a href="https://www.phenoptix.com/collections/new-products/products/bare-bones-breadboard-arduino-compatible-kit-shrinkify-your-projects" rel="nofollow">"Bare Bones" £5 Arduino Kit from Phenoptix</a>. In fact that's the very kit I'm working with. It also comes with a host of protective capacitors, a reset switch and some other components for a stand-alone Arduino that you wont need for this tutorial. If you don't have jump wires then you can also pick up a pack of <a rel="nofollow" href="https://www.phenoptix.com/products/solderless-breadboard-jumper-cables-25-piece-colour-coded-wire-kit-female-male-m-f">M/F jump wires</a>, far more than you'll need! If you go for this kit, you'll also need to dig up 3 more LEDs ( or 4 of any type ) and 3 or 4 resistors to go with them.</p>
+    <h2>Putting it together</h2>
+    <p>What we're effectively building is an even more minimal version of the "Shrimp" variety of Arduino-compatible, with 4 LEDs for you to experiment with. We won't be using capacitors on the crystal (unless you feel you need to), or the reset capacitor or pull-up resistor; it's quicker and easier to omit these until you need to use your mini Arduino for something other than tinkering. In my experience, my Pi didn't agree with having a pull-up resistor on the reset line and trashed its SD card twice; this hasn't happened since I removed it. It could be coincidence, but I'm not taking any chances.</p>
+    <p>To make things really easy, I've built a micro-site which will walk you through the build process. Find it here: <a href="https://pi.gadgetoid.com/piduino/pico-piduino">https://pi.gadgetoid.com/piduino/pico-piduino</a></p>
+    <p>We'll be aligning the ATmega to the left of the breadboard and using the space at the other end to squeeze in the LEDs.</p>
+    <ol>
+    <li>Orientate your Breadboard so that the number 1 ( numbers should be visible faintly on the edge ) is at the bottom left</li>
+    <li>Place your ATmega with the little notch facing left, and aligned against the left edge of the Breadboard</li>
+    <li>Make sure the ATmega pins line up with the holes on the breadboard, and push it firmly in with even pressure.</li>
+    <li>Locate column 9 and 10 on the bottom edge ( with the notch facing left ), and bridge them with the Crystal Oscillator. If you can't see numbers, count the holes.</li>
+    <li>Grab one male to male jump wire, preferably a red one, and bridge column 7 on the bottom edge to column 9 on the top edge</li>
+    <li>Grab another male to male jump wire, preferably a black one, and bridge column 8 on the bottom edge to column 7 on the top edge</li>
+    <li>Grab the next jump wire, or an 0 Ohm resistor, and connect the lower column 17 to the upper one, creating a mini Ground rail for your LEDs</li>
+    <li>Grab your last jump wire and bridge the top of column 17 to the top of column 7 to ground your LEDs Ground rail</li>
+    </ol>
+    <p><a href="https://www.flickr.com/photos/65419961@N06/9701646453/" title="Pico PiDuino under construction by gadgetoid, on Flickr"><img src="https://farm6.staticflickr.com/5442/9701646453_1a67dcc40a_c.jpg" alt="Pico PiDuino under construction"></a></p>
+    <p>You now have a working ATmega on a breadboard. Yes, it's that simple to get started! If you're confident getting it hooked up you can now <a href="https://pi.gadgetoid.com/piduino/pico-piduino">visit my Pico Piduino assembly micro-site</a> and click "Connection Overlay" to see where things should connect.</p>
+    <p>Cross reference this with my <a href="https://pi.gadgetoid.com/pinout/atmega328-arduino">Piout Microsite</a> to see which pins on the Pi are the ones you need to connect it to.</p>
+    <p>To verify that your ATmega is set up correctly and can be programmed, you need to set up the programming connections which are as follows:</p>
+    <ul>
+    <li>Connect Reset on your Pico PiDuino to <a href="https://pi.gadgetoid.com/pinout/pin24_gpio8">GPIO 8</a> on the Pi</li>
+    <li>Connect MOSI to <a href="https://pi.gadgetoid.com/pinout/pin19_gpio10">GPIO 10/MOSI</a> on the Pi</li>
+    <li>Connect MISO to <a href="https://pi.gadgetoid.com/pinout/pin21_gpio9">GPIO 9/MISO</a> on the Pi</li>
+    <li>Connect SCLK to <a href="https://pi.gadgetoid.com/pinout/pin23_gpio11">GPIO 11/SCLK</a> on the Pi</li>
+    </ul>
+    <p>Finally, connect the end of column 7 on your Pico PiDuino to your Pi 3.3v Pin, I recommend using <a href="https://pi.gadgetoid.com/pinout/pin17_3v3_power">pin 17</a> and the end of column 8 to the Ground on your Pi. I use <a href="https://pi.gadgetoid.com/pinout/pin25_ground">pin 25</a> at the bottom right. This should keep all your connections in one tidy block.</p>
+    <h2>Testing your Pico PiDuino</h2>
+    <p>First you'll need to install Gordon's <a href="https://projects.drogon.net/raspberry-pi/gertboard/arduino-ide-installation-isp/">modified Avrdude</a> on Raspbian, that means doing the following:</p>
+    <code>cd /tmp<br/>wget https://project-downloads.drogon.net/gertboard/avrdude_5.10-4_armhf.deb<br/>sudo dpkg -i avrdude_5.10-4_armhf.deb<br/>sudo chmod 4755 /usr/bin/avrdude</code>
+    <p>Once installed, you can check your Pico PiDuino is set up and connected correctly using:</p>
+    <code>avrdude -p m328p -c gpio</code>
+    <p>If everything is working fine you should see something like: "avrdude: AVR device initialized and ready to accept instructions" If so, well done! Let's add some LEDs.</p>
+    <p>If not, double check your connections. It should help to <a href="https://pi.gadgetoid.com/piduino/pico-piduino">follow my assembly guide</a> and use the Connection Overlay.</p>
+    <h2>Adding the LEDs</h2>
+    <p>If you haven't already jumped the gun, you'll notice that I didn't connect the LEDs above. It helps to do things in phases, and once we've got a working ATmega up and running it makes sense to test it.</p>
+    <p>The LEDs are cleverly clustered around the Arduino digital pins 7, 8, 9 and 10. These are good for a number of reasons:</p>
+    <ul>
+    <li>They're right at the end of the ATmega</li>
+    <li>They're in sequence</li>
+    <li>They don't conflict with any of the programming functionality</li>
+    </ul>
+    <p>Most normal Arduino builds assume pin 13 is an LED, so if you use any demos from the Arduino website, or for any other Arduino-compatible devices make sure you update the LED pin to 7, 8, 9 or 10.</p>
+    <p>Connect the LEDs and resistors as follows:</p>
+    <ul>
+    <li>Put the long leg of the Red LED into column 13 at the very bottom, and the short leg into column 15</li>
+    <li>Put the long leg of the Orange LED into column 14 right up against the ATmega, and the short leg into column 16</li>
+    <li>Put the long leg of the Yellow LED into column 14 on the top half of the breadboard, again right up against the ATmega, and the short leg into column 16</li>
+    <li>Put the long leg of the Green LED into column 13 at the very top of the breadboard, and the short leg into column 15</li>
+    </ul>
+    <p>By now you should have 4 LEDs connected in two pairs, with two rows gap between them. Place a resistor in each of these 4 rows, bridging the short leg of each LED to the Ground rail.</p>
+    <a href="https://www.flickr.com/photos/65419961@N06/9701656135/" title="Pico PiDuino by gadgetoid, on Flickr"><img src="https://farm6.staticflickr.com/5532/9701656135_71f9fa7385_c.jpg" alt="Pico PiDuino"></a>
+    <p>We're done. Make sure everything is connected properly and fire up avrdude for one last test:</p>
+    <code>avrdude -p m328p -c gpio</code>
+    <p>Successful? Well, I'm afraid this article is getting a little long and I'll have to end here. Stay tuned for the next in the series when we will learn how to program your ATmega-powered Pico PiDuino from the command-line.</p>
+    <h2>Useful links</h2>
+    <ul>
+    <li><a href="https://pi.gadgetoid.com/pinout/atmega328-arduino">https://pi.gadgetoid.com/pinout/atmega328-arduino</a> Raspberry Pi to ATmega 328 programming pinout</li>
+    <li><a href="https://pi.gadgetoid.com/piduino/pico-piduino">https://pi.gadgetoid.com/piduino/pico-piduino</a> - Pico PiDuino Assembly Guide</li>
+    <li><a href="https://projects.drogon.net/raspberry-pi/gertboard/arduino-ide-installation-isp/">https://projects.drogon.net/raspberry-pi/gertboard/arduino-ide-installation-isp/</a> - Arduino IDE/modified AVRdude installation</li>
+    <li><a href="https://www.phenoptix.com/products/bare-bones-breadboard-arduino-compatible-kit-shrinkify-your-projects">https://www.phenoptix.com/products/bare-bones-breadboard-arduino&hellip;</a> - Barebones Arduino-compatible kit from Phenoptix</li>
+    </ul>
+
+<p>
+<a href="/">&laquo; Back to index</a>
+<span class="pull-right">Posted on 2013-09-15 by <a href="https://plus.google.com/u/1/117249928463522431848/?rel=author" rel="author">Philip Howard</a></span>
+</p>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+            var disqus_shortname = 'raspberrypi-gadgetoid';
+            var disqus_identifier = 'post-58';
+            var disqus_url = undefined;
+            (function() {var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);})();
+          </script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</article>
+</section>
+<aside>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="links">
+<li><a href="https://github.com/gadgetoid"><i class="fab fa-github-alt"></i> GitHub</a></li>
+<li><a href="https://fosstodon.org/@gadgetoid"><i class="fab fa-mastodon"></i> Mastodon</a></li>
+<li><a href="https://gadgetoid.com"><i class="fa fa-link"></i> Gadgetoid.com</a></li>
+</ul>
+<p>
+Try our interactive
+<a href="https://pinout.xyz">Raspberry Pi GPIO Pinout Guide</a>!
+</p>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="articles">
+<li><a href="/article/starting-with-spin-on-the-parallax-propeller">Starting with SPIN on the Parallax Propeller</a>
+<li><a href="/article/parallax-propeller-p8x32a-first-impressions">Parallax Propeller P8X32A First Impressions</a>
+<li><a href="/article/anidees-ai-pi-aluminium-case-for-raspberry-pi">Anidees AI-PI Aluminium Case for Raspberry Pi</a>
+<li><a href="/article/made-into-a-maker">Made into a maker</a>
+<li><a href="/article/papilio-duo-the-amazing-drag-n-drop-fgpa">Papilio DUO, the amazing drag-n-drop FGPA</a>
+<li><a href="/article/running-google-coder-on-your-existing-raspberry-pi-or-desktop-pc">Running Google Coder On Your Existing Raspberry Pi Or Desktop PC</a>
+<li class="active"><a href="/article/programming-your-pico-piduino">Programming Your Pico PiDuino</a>
+<li><a href="/article/building-the-pico-piduino">Building the Pico PiDuino - A cheap barebones Arduino compatible for your Pi</a>
+<li><a href="/article/arduino-due-vga-output">Arduino Due VGA Output</a>
+<li><a href="/article/playing-with-the-pibow-timber">Playing With The PiBow Timber</a>
+<li><a href="/article/making-a-piglow-remote">Making A PiGlow Remote</a>
+<li><a href="/article/cnc-machine-safety">CNC Machine Safety</a>
+<li><a href="/article/arduino-due">Arduino Due</a>
+<li><a href="/article/heroku-control-panel">Heroku Control Panel</a>
+<li><a href="/article/hobbytronics-serial-tft-load-tested">Hobbytronics Serial TFT Load Tested</a>
+<li><a href="/article/techweek-europe-office-gadget-competition">TechWeek Europe Office Gadget Competition</a>
+<li><a href="/article/hobbytronics-1-8-serial-tft-board">Hobbytronics 1.8" Serial-TFT Board</a>
+<li><a href="/article/clockatoo-twitter-feed">Clockatoo Twitter Feed</a>
+<li><a href="/article/clockatoo-clock-board-says-hello-world">Clockatoo Clock Board says Hello World</a>
+<li><a href="/article/ruby-with-nginx-passenger">Ruby with Nginx/Passenger</a>
+<li><a href="/article/raspberry-pi-for-dummies">Raspberry Pi For Dummies</a>
+<li><a href="/article/ab-electronics-io-boards">AB Electronics IO Boards</a>
+<li><a href="/article/wiringpi2-ruby-in-the-works">WiringPi2 Ruby In The Works</a>
+<li><a href="/article/getting-started-with-the-papilio-retrocade-synth">Getting Started With The Papilio RetroCade Synth</a>
+<li><a href="/article/setting-up-the-znc-irc-bouncer-on-the-raspberry-pi">Setting up the ZNC IRC Bouncer on the Raspberry Pi</a>
+<li><a href="/article/raspberry-pi-gpio-pinout-guide">Raspberry Pi GPIO Pinout Guide</a>
+<li><a href="/article/driving-electroluminescent-wire-with-the-raspberry-pi">Driving Electroluminescent Wire With The Raspberry Pi</a>
+<li><a href="/article/wiringpi-version-2-with-extra-python">WiringPi Version 2 With Extra Python</a>
+<li><a href="/article/raspberry-pi-ladder-board">Raspberry Pi Ladder Board</a>
+<li><a href="/article/simulating-a-quick-and-dirty-microprocessor">Simulating A Quick And Dirty Microprocessor</a>
+<li><a href="/article/field-programmable-gate-arrays">Field Programmable Gate Arrays</a>
+<li><a href="/article/refactoring-and-whatnot">Refactoring And Whatnot</a>
+<li><a href="/article/quick2wire-port-expander-assembly">Quick2Wire Port Expander Assembly</a>
+<li><a href="/article/quick2wire-port-expander-tested">Quick2Wire Port Expander Tested</a>
+<li><a href="/article/raspberry-leaf-gpio-reference">Raspberry Leaf GPIO Reference</a>
+<li><a href="/article/minecraft-raspberry-pi-edition-ruby-api">Minecraft Raspberry Pi Edition Ruby API</a>
+<li><a href="/article/minecraft-pi-edition-now-available">Minecraft Pi Edition Now Available</a>
+<li><a href="/article/quick2wire-for-raspberry-pi">Quick2Wire For Raspberry Pi</a>
+<li><a href="/article/tempremental-pi-and-bootstrap-update">Tempremental Pi, and Bootstrap Update</a>
+<li><a href="/article/live-raspberry-pi-system-stats">Live Raspberry Pi System Stats</a>
+<li><a href="/article/second-norwich-rpi-group-meetup">Second Norwich RPi group meetup</a>
+<li><a href="/article/gordons-raspberry-pi-ladder-board">Gordon's Raspberry Pi Ladder Board</a>
+<li><a href="/article/hobbytronics-raspberry-pi-gpio-breakout-board-pro">Hobbytronics Raspberry Pi GPIO breakout board Pro</a>
+<li><a href="/article/st7565-negative-graphic-lcd-running-from-a-pi-arduino-combo">ST7565 Negative Graphic LCD running from a Pi/Arduino combo</a>
+<li><a href="/article/pi-gpio-breakout-board-and-port-expander-kits">Pi GPIO Breakout Board and Port Expander Kits</a>
+<li><a href="/article/icontrolpad2-live-on-kickstarter">iControlPad2 - Live on KickStarter</a>
+<li><a href="/article/who-watches-the-watcher">Who watches the watcher?</a>
+<li><a href="/article/first-norwich-rpi-group-meetup">First Norwich RPi group meetup</a>
+<li><a href="/article/hobbytronics-co-uk-add-a-raspberry-pi-section">HobbyTronics.co.uk add a Raspberry Pi section</a>
+<li><a href="/article/get-your-custom-fit-microsd-adaptor-fix-from-kickstarter">Get your custom-fit MicroSD adaptor fix from KickStarter</a>
+<li><a href="/article/getting-at-the-ext-partition-in-a-raspberry-pi-os-image">Getting at the EXT partition in a Raspberry Pi OS image</a>
+<li><a href="/article/wiringpi-serial-and-shiftout">WiringPi Serial And Shiftout</a>
+<li><a href="/article/wiringpi-ruby-gem-fixes">WiringPi Ruby Gem Fixes</a>
+<li><a href="/article/multiplexing-4-7-segment-displays-with-wiringpi-and-ruby">Multiplexing 4 7 Segment Displays With WiringPi And Ruby</a>
+<li><a href="/article/adventures-with-arduino">Adventures with Arduino</a>
+<li><a href="/article/vga-output-on-the-pi">VGA Output On The Pi?</a>
+<li><a href="/article/wiringpi-as-a-ruby-gem">WiringPi As A Ruby Gem</a>
+<li><a href="/article/using-the-palm-m500-as-a-raspberry-pi-lcd">Using the Palm m500 as a Raspberry Pi LCD</a>
+<li><a href="/article/ruby-binary-clock">Ruby binary clock</a>
+<li><a href="/article/ruby-can-be-lovely-sometimes">Ruby can be lovely sometimes</a>
+<li><a href="/article/adventures-in-assembly">Adventures in Assembly</a>
+<li><a href="/article/c-see">C, See</a>
+<li><a href="/article/bootstrap-css">Bootstrap CSS</a>
+<li><a href="/article/remote-ruby-with-lirc">Remote Ruby with LIRC</a>
+<li><a href="/article/booting-multiple-distributions">Booting multiple distributions</a>
+</ul>
+<div class="logo small">
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+<div></div>
+</div>
+<ul class="nav nav-pills nav-stacked">
+<li>
+<a rel="nofollow" href="https://www.raspberrypi.org/phpBB3/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi forum
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://elinux.org/R-Pi_Hub">
+<i class="fa fa-external-link-alt"></i>
+Wiki at elinux.org
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.flickr.com/groups/1884120@N23/">
+<i class="fa fa-external-link-alt"></i>
+Raspberry Pi Flickr group
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://export.farnell.com/jsp/raspi/orderPad.jsp?&amp;country=GB">
+<i class="fa fa-external-link-alt"></i>
+Buy the Raspberry Pi @ Farnell UK
+</a>
+</li>
+<li>
+<a rel="nofollow" href="https://www.bootc.net/projects/raspberry-pi-kernel/">
+<i class="fa fa-external-link-alt"></i>
+bootc's 3.2.x Pi kernel project
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://github.com/WiringPi">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ GitHub
+</a>
+</li>
+<li>
+<a rel="nofollow"  href="https://projects.drogon.net/raspberry-pi/wiringpi/">
+<i class="fa fa-external-link-alt"></i>
+Wiring Pi @ Drogon.net
+</a>
+</li>
+<li>
+<a  rel="nofollow" href="https://www.usrben.com/">
+<i class="fa fa-external-link-alt"></i>
+usrben.com - Linux tips
+</a>
+</li>
+</ul>
+</aside>
+</div>
+<footer></footer>
+</body>
+</html>
